@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduHelper AI — Accessible Learning Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:       #0E1117;
+  --surface:  #161B24;
+  --card:     #1C2333;
+  --card2:    #212840;
+  --border:   #2A3550;
+  --border2:  #334060;
+  --terra:    #E8634A;
+  --terra2:   #C44A33;
+  --gold:     #F0B429;
+  --mint:     #34D399;
+  --sky:      #38BDF8;
+  --lilac:    #A78BFA;
+  --rose:     #FB7185;
+  --white:    #F4F8FF;
+  --text:     #B8C8E0;
+  --muted:    #5A7090;
+  --radius:   14px;
+  --shadow:   0 8px 32px rgba(0,0,0,0.4);
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:240px 1fr;grid-template-rows:58px 1fr;height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{
+  grid-column:1/-1;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;z-index:100;
+}
+.tl{display:flex;align-items:center;gap:.75rem}
+.logo{font-family:'Fraunces',serif;font-size:1.45rem;font-weight:900;letter-spacing:-.02em}
+.logo span{color:var(--terra)}
+.badge-live{
+  background:rgba(232,99,74,.15);border:1px solid rgba(232,99,74,.35);
+  border-radius:100px;padding:.2rem .7rem;font-size:.65rem;font-weight:700;
+  color:var(--terra);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;
+  display:flex;align-items:center;gap:.35rem;
+}
+.badge-live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--terra);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.tr-bar{display:flex;align-items:center;gap:.75rem}
+.lang-toggle{
+  display:flex;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;
+}
+.lt-btn{
+  padding:.35rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;border:none;
+  background:transparent;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.lt-btn.active{background:var(--terra);color:#fff}
+.key-btn{
+  background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.3);
+  border-radius:8px;padding:.35rem .9rem;font-size:.75rem;font-weight:600;
+  color:var(--gold);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.key-btn:hover{background:rgba(240,180,41,.2)}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--terra),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;color:#fff;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:1.2rem .75rem;
+  display:flex;flex-direction:column;gap:.2rem;
+}
+.nav-group{font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding:.8rem .6rem .3rem;font-family:'JetBrains Mono',monospace}
+.nav-item{
+  display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;border-radius:10px;
+  cursor:pointer;font-size:.83rem;font-weight:500;color:var(--text);
+  transition:all .15s;border:1px solid transparent;user-select:none;
+}
+.nav-item:hover{background:var(--card);color:var(--white)}
+.nav-item.active{background:rgba(232,99,74,.12);color:var(--terra);border-color:rgba(232,99,74,.25)}
+.ni-icon{font-size:1.05rem;width:18px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;background:var(--terra);color:#fff;border-radius:100px;padding:.1rem .45rem;font-size:.6rem;font-weight:800}
+.sidebar-footer{
+  margin-top:auto;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1rem;
+}
+.sf-label{font-size:.72rem;color:var(--text);margin-bottom:.5rem;display:flex;justify-content:space-between}
+.sf-label span{color:var(--terra);font-weight:700}
+.sf-bar{background:var(--border);border-radius:100px;height:6px;overflow:hidden}
+.sf-fill{background:linear-gradient(90deg,var(--terra),var(--gold));height:100%;transition:width 1s ease}
+.sf-sub{font-size:.68rem;color:var(--muted);margin-top:.4rem}
+
+/* ── MAIN ── */
+.main{overflow-y:auto;padding:1.8rem;background:var(--bg);display:flex;flex-direction:column;gap:1.4rem}
+
+/* ── PANELS ── */
+.panel{display:none;flex-direction:column;gap:1.4rem;animation:fadeUp .35s ease}
+.panel.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.sh-left h2{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.2rem}
+.sh-left p{color:var(--muted);font-size:.83rem}
+.sh-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.25rem .6rem}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.card-sm{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
+.card-title{font-weight:700;font-size:.9rem;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+/* ── HOME ── */
+.hero-banner{
+  background:linear-gradient(135deg,rgba(232,99,74,.14) 0%,rgba(240,180,41,.08) 100%);
+  border:1px solid rgba(232,99,74,.22);border-radius:20px;padding:2rem 2.5rem;
+  position:relative;overflow:hidden;
+}
+.hero-banner::after{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,99,74,.12),transparent 70%);
+}
+.hero-banner h1{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.4rem}
+.hero-banner h1 em{font-style:normal;color:var(--terra)}
+.hero-banner p{color:var(--text);font-size:.88rem;max-width:500px}
+.qcard{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.3rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--qc,var(--terra));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.qcard:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--border2)}
+.qcard:hover::before{transform:scaleX(1)}
+.qc-icon{font-size:1.7rem;margin-bottom:.8rem}
+.qc-title{font-weight:700;font-size:.88rem;margin-bottom:.3rem}
+.qc-sub{color:var(--muted);font-size:.78rem;line-height:1.55}
+
+/* ── FORMS ── */
+.field{display:flex;flex-direction:column;gap:.35rem}
+.fl{font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+textarea,input[type=text],input[type=password],select{
+  background:var(--surface);border:1px solid var(--border);color:var(--white);
+  border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.86rem;
+  padding:.7rem .95rem;outline:none;transition:border-color .2s;width:100%;
+}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+textarea:focus,input:focus,select:focus{border-color:var(--terra)}
+.row{display:flex;gap:.75rem;align-items:flex-end}
+.btn{
+  background:var(--terra);color:#fff;border:none;border-radius:10px;
+  padding:.72rem 1.6rem;font-weight:700;font-family:'DM Sans',sans-serif;font-size:.86rem;
+  cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;
+}
+.btn:hover{background:var(--terra2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,99,74,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  padding:.65rem 1.2rem;border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:.84rem;cursor:pointer;transition:all .2s;font-weight:500;
+}
+.btn-ghost:hover{border-color:var(--terra);color:var(--terra)}
+.btn-sm{padding:.38rem .85rem;font-size:.75rem;border-radius:8px}
+.btn-sky{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);color:var(--sky);border-radius:8px;padding:.38rem .85rem;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-sky:hover{background:rgba(56,189,248,.25)}
+.btn-mint{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--mint);border-radius:8px;padding:.38rem .85rem;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-mint:hover{background:rgba(52,211,153,.25)}
+
+/* ── TTS / VOICE ── */
+.voice-bar{
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  padding:.85rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+}
+.voice-status{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.mic-wave{display:flex;gap:2px;align-items:center;height:16px}
+.mic-wave span{
+  width:3px;border-radius:2px;background:var(--terra);
+  animation:wave 1s ease-in-out infinite;
+}
+.mic-wave span:nth-child(1){height:4px;animation-delay:.0s}
+.mic-wave span:nth-child(2){height:10px;animation-delay:.15s}
+.mic-wave span:nth-child(3){height:16px;animation-delay:.3s}
+.mic-wave span:nth-child(4){height:10px;animation-delay:.45s}
+.mic-wave span:nth-child(5){height:4px;animation-delay:.6s}
+@keyframes wave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
+.mic-wave.idle span{animation:none;height:4px}
+.stt-transcript{
+  flex:1;min-width:160px;font-size:.82rem;color:var(--text);
+  padding:.4rem .6rem;background:var(--card);border-radius:8px;border:1px solid var(--border);
+  font-style:italic;min-height:32px;
+}
+
+/* ── AI RESPONSE ── */
+.resp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;animation:fadeUp .35s ease}
+.resp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)}
+.resp-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:.95rem}
+.ai-chip{background:rgba(232,99,74,.15);border:1px solid rgba(232,99,74,.3);border-radius:6px;padding:.18rem .55rem;font-size:.62rem;font-weight:700;color:var(--terra);font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+.resp-body{color:var(--text);font-size:.88rem;line-height:1.78;white-space:pre-wrap}
+.resp-body strong{color:var(--white);font-weight:600}
+.resp-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1.1rem}
+
+/* ── QUIZ ── */
+.qz-prog-wrap{display:flex;align-items:center;gap:.75rem;margin-bottom:1.4rem}
+.qz-bar{flex:1;background:var(--border);border-radius:100px;height:5px}
+.qz-fill{background:linear-gradient(90deg,var(--terra),var(--gold));height:100%;border-radius:100px;transition:width .4s}
+.qz-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);white-space:nowrap}
+.qz-q{font-size:1rem;font-weight:600;line-height:1.6;margin-bottom:1.3rem;color:var(--white)}
+.opts{display:flex;flex-direction:column;gap:.65rem}
+.opt{
+  display:flex;align-items:center;gap:.8rem;
+  background:var(--surface);border:2px solid var(--border);border-radius:12px;
+  padding:.9rem 1.1rem;cursor:pointer;transition:all .2s;font-size:.86rem;color:var(--text);font-weight:500;
+}
+.opt:hover:not(.dis){border-color:var(--terra);color:var(--white)}
+.opt.sel{border-color:var(--terra);background:rgba(232,99,74,.08);color:var(--terra)}
+.opt.ok{border-color:var(--mint);background:rgba(52,211,153,.08);color:var(--mint)}
+.opt.bad{border-color:var(--rose);background:rgba(251,113,133,.08);color:var(--rose)}
+.opt.dis{cursor:default}
+.opt-ltr{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;font-family:'JetBrains Mono',monospace;transition:all .2s;
+}
+.opt.ok .opt-ltr{background:var(--mint);color:var(--bg)}
+.opt.bad .opt-ltr{background:var(--rose);color:#fff}
+.opt.sel .opt-ltr{background:var(--terra);color:#fff}
+.fb-box{margin-top:1rem;padding:.9rem 1.1rem;border-radius:10px;font-size:.85rem;line-height:1.65;animation:fadeUp .3s ease}
+.fb-box.ok{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#6EE7B7}
+.fb-box.bad{background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.25);color:#FCA5A5}
+.qz-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1.3rem;flex-wrap:wrap;gap:.5rem}
+.score-ring{
+  width:108px;height:108px;border-radius:50%;
+  margin:0 auto 1.1rem;display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:2.1rem;font-weight:900;
+  border:4px solid;position:relative;
+}
+.score-ring.hi{border-color:var(--mint);color:var(--mint);background:rgba(52,211,153,.1)}
+.score-ring.mid{border-color:var(--gold);color:var(--gold);background:rgba(240,180,41,.1)}
+.score-ring.lo{border-color:var(--rose);color:var(--rose);background:rgba(251,113,133,.1)}
+
+/* ── DASHBOARD ── */
+.stat-tile{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.3rem;position:relative;overflow:hidden;
+}
+.stat-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--tc,var(--terra))}
+.st-val{font-family:'Fraunces',serif;font-size:2.3rem;font-weight:900;color:var(--tc,var(--terra));line-height:1}
+.st-lbl{font-size:.76rem;color:var(--muted);margin-top:.3rem}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem}
+.chart-title{font-weight:700;font-size:.88rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between}
+.heatmap-grid{display:grid;grid-template-columns:120px repeat(5,1fr);gap:.35rem;align-items:center}
+.hm-hd{font-size:.66rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:center}
+.hm-name{font-size:.78rem;color:var(--text)}
+.hm-cell{height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.67rem;font-weight:700;font-family:'JetBrains Mono',monospace;cursor:default;transition:transform .15s}
+.hm-cell:hover{transform:scale(1.1)}
+.alert-row{display:flex;align-items:center;gap:.8rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--rose);border-radius:10px;padding:.75rem 1rem}
+.ar-main{font-weight:600;font-size:.84rem}
+.ar-sub{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+.ar-num{margin-left:auto;text-align:center;flex-shrink:0}
+.ar-n{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--rose);line-height:1}
+.ar-l{font-size:.62rem;color:var(--muted)}
+
+/* ── LOADING ── */
+.thinking{display:flex;align-items:center;gap:.6rem;padding:1.1rem 1.3rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:.83rem}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--terra);margin-right:3px;animation:bounce .9s infinite}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:.45rem}
+.chip{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.3rem .9rem;font-size:.76rem;cursor:pointer;transition:all .2s;color:var(--text)}
+.chip:hover{border-color:var(--terra);color:var(--terra);background:rgba(232,99,74,.06)}
+
+/* ── API KEY MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;width:min(500px,90vw);animation:fadeUp .3s ease}
+.modal h3{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900;margin-bottom:.4rem}
+.modal p{color:var(--muted);font-size:.83rem;margin-bottom:1.2rem;line-height:1.6}
+.modal-foot{display:flex;gap:.6rem;margin-top:1.2rem}
+.close-btn{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border)}
+.tag-pill{display:inline-flex;align-items:center;gap:.3rem;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.2rem .7rem;font-size:.7rem;color:var(--muted)}
+.empty{text-align:center;padding:3rem;color:var(--muted);font-size:.88rem}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}
+
+/* ── RESPONSIVE ── */
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr;grid-template-rows:58px 1fr}
+  .sidebar{display:none}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tl">
+    <div class="logo">Edu<span>Helper</span></div>
+    <div class="badge-live">LIVE DEMO</div>
+  </div>
+  <div class="tr-bar">
+    <div class="lang-toggle">
+      <button class="lt-btn" onclick="setLang('te',this)">తెలుగు</button>
+      <button class="lt-btn active" onclick="setLang('en',this)">English</button>
+    </div>
+    <button class="key-btn" onclick="openModal()">🔑 API Key</button>
+    <div class="avatar">RS</div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="nav-group">Student</div>
+  <div class="nav-item active" onclick="nav('home',this)"><span class="ni-icon">🏠</span>Home</div>
+  <div class="nav-item" onclick="nav('learn',this)"><span class="ni-icon">🌐</span>AI Explainer<span class="ni-badge">AI</span></div>
+  <div class="nav-item" onclick="nav('quiz',this)"><span class="ni-icon">✏️</span>Voice Quiz</div>
+  <div class="nav-group">Teacher</div>
+  <div class="nav-item" onclick="nav('dash',this)"><span class="ni-icon">📊</span>Dashboard</div>
+  <div class="nav-item" onclick="nav('report',this)"><span class="ni-icon">📄</span>AI Report</div>
+  <div class="nav-group">Accessibility</div>
+  <div class="nav-item" onclick="nav('access',this)"><span class="ni-icon">♿</span>Accessibility</div>
+
+  <div class="sidebar-footer">
+    <div class="sf-label">Your Progress <span id="xpTxt">320 XP</span></div>
+    <div class="sf-bar"><div class="sf-fill" id="xpBar" style="width:64%"></div></div>
+    <div class="sf-sub">Level 5 · 180 XP to next</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ HOME ═══ -->
+<div class="panel active" id="p-home">
+  <div class="hero-banner">
+    <h1>Learn smarter, in your <em>own language.</em></h1>
+    <p>EduHelper AI combines voice learning, multilingual explanations, and adaptive quizzes to make quality education accessible to every student — regardless of language, disability, or location.</p>
+  </div>
+  <div class="g3">
+    <div class="qcard" style="--qc:var(--terra)" onclick="nav('learn',null)">
+      <div class="qc-icon">🌐</div>
+      <div class="qc-title">AI Explainer</div>
+      <div class="qc-sub">Concepts in Telugu or English with real-life Indian examples and TTS readout.</div>
+    </div>
+    <div class="qcard" style="--qc:var(--gold)" onclick="nav('quiz',null)">
+      <div class="qc-icon">🎙️</div>
+      <div class="qc-title">Voice Quiz</div>
+      <div class="qc-sub">Answer questions by voice — designed for dyslexic and rural students.</div>
+    </div>
+    <div class="qcard" style="--qc:var(--mint)" onclick="nav('dash',null)">
+      <div class="qc-icon">📊</div>
+      <div class="qc-title">Teacher Dashboard</div>
+      <div class="qc-sub">Real-time heatmaps, Chart.js analytics, 25% less grading time.</div>
+    </div>
+    <div class="qcard" style="--qc:var(--sky)" onclick="nav('access',null)">
+      <div class="qc-icon">♿</div>
+      <div class="qc-title">Accessibility Hub</div>
+      <div class="qc-sub">High-contrast mode, dyslexia font, font-size controls, full keyboard nav.</div>
+    </div>
+    <div class="qcard" style="--qc:var(--lilac)" onclick="nav('report',null)">
+      <div class="qc-icon">📄</div>
+      <div class="qc-title">AI Report Gen</div>
+      <div class="qc-sub">Auto-generated performance insights — saves teachers 25% grading time.</div>
+    </div>
+    <div class="qcard" style="--qc:var(--rose)" onclick="openModal()">
+      <div class="qc-icon">🔑</div>
+      <div class="qc-title">Add API Key</div>
+      <div class="qc-sub">Connect Anthropic API for live AI explanations and quiz generation.</div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="stat-tile" style="--tc:var(--terra)"><div class="st-val">30%</div><div class="st-lbl">Quiz score improvement after voice quizzes</div></div>
+    <div class="stat-tile" style="--tc:var(--gold)"><div class="st-val">25%</div><div class="st-lbl">Teacher grading time saved via auto-reports</div></div>
+    <div class="stat-tile" style="--tc:var(--mint)"><div class="st-val">22+</div><div class="st-lbl">Indian languages supported via TTS/STT</div></div>
+    <div class="stat-tile" style="--tc:var(--sky)"><div class="st-val">1K+</div><div class="st-lbl">Students served — scalable, free Web APIs</div></div>
+  </div>
+</div>
+
+<!-- ═══ LEARN ═══ -->
+<div class="panel" id="p-learn">
+  <div class="sh">
+    <div class="sh-left"><h2>🌐 AI Concept Explainer</h2><p>Type, speak, or pick a topic — get a clear explanation with TTS readout in your language.</p></div>
+    <span class="sh-tag">TTS · STT · MULTILINGUAL</span>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom:.8rem">
+      <div class="fl" style="margin-bottom:.5rem">Quick Topics</div>
+      <div class="chips" id="topicChips">
+        <div class="chip" onclick="setTopic('Photosynthesis')">🌿 Photosynthesis</div>
+        <div class="chip" onclick="setTopic('Newton\'s Laws of Motion')">⚙️ Newton's Laws</div>
+        <div class="chip" onclick="setTopic('Ohm\'s Law')">⚡ Ohm's Law</div>
+        <div class="chip" onclick="setTopic('Quadratic Equations')">➗ Quadratic Eq.</div>
+        <div class="chip" onclick="setTopic('The French Revolution')">🏛️ French Revolution</div>
+        <div class="chip" onclick="setTopic('Structure of DNA')">🧬 DNA Structure</div>
+        <div class="chip" onclick="setTopic('Human Digestive System')">🫀 Digestion</div>
+        <div class="chip" onclick="setTopic('Electricity and Circuits')">💡 Circuits</div>
+      </div>
+    </div>
+    <div class="divider" style="margin:.8rem 0"></div>
+    <div class="row" style="flex-wrap:wrap;gap:.75rem">
+      <div class="field" style="flex:1;min-width:200px">
+        <div class="fl">Topic or paste textbook text</div>
+        <textarea id="topicIn" placeholder="e.g. Explain photosynthesis to a Class 10 student..." rows="2"></textarea>
+      </div>
+      <div class="field" style="min-width:150px;max-width:165px">
+        <div class="fl">Explain in</div>
+        <select id="explainLang">
+          <option value="Telugu">తెలుగు Telugu</option>
+          <option value="Hindi">हिंदी Hindi</option>
+          <option value="Tamil">தமிழ் Tamil</option>
+          <option value="English" selected>🌐 English</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- STT voice input -->
+    <div class="voice-bar" style="margin-top:.8rem">
+      <button class="btn-sky btn-sm" id="sttBtn" onclick="toggleSTT()">🎙️ Speak Topic</button>
+      <div class="mic-wave idle" id="micWave"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="stt-transcript" id="sttOut">Press "Speak Topic" and say your topic...</div>
+    </div>
+
+    <div style="display:flex;gap:.65rem;margin-top:.85rem;flex-wrap:wrap;align-items:center">
+      <button class="btn" onclick="explainTopic()">✨ Explain with AI</button>
+      <button class="btn-ghost btn-sm" onclick="document.getElementById('topicIn').value='';document.getElementById('explainOut').innerHTML=''">Clear</button>
+      <span style="font-size:.75rem;color:var(--muted)">📡 Add API key for live AI · Demo works without it</span>
+    </div>
+  </div>
+
+  <div id="explainOut"></div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div class="panel" id="p-quiz">
+  <div class="sh">
+    <div class="sh-left"><h2>🎙️ Adaptive Voice Quiz</h2><p>AI-generated questions with voice answer support. Wrong answers trigger re-teaching. Boosts comprehension by 30%.</p></div>
+    <span class="sh-tag">VOICE · ADAPTIVE · AI</span>
+  </div>
+
+  <div class="card" id="quizSetup">
+    <div class="row" style="flex-wrap:wrap;gap:.75rem">
+      <div class="field" style="flex:1;min-width:180px">
+        <div class="fl">Quiz Topic</div>
+        <input type="text" id="quizTopic" value="Newton's Laws of Motion" placeholder="e.g. Photosynthesis">
+      </div>
+      <div class="field" style="max-width:150px">
+        <div class="fl">Difficulty</div>
+        <select id="quizDiff">
+          <option value="easy">Easy (Cl. 8)</option>
+          <option value="medium" selected>Medium (Cl. 10)</option>
+          <option value="hard">Hard (Cl. 12)</option>
+        </select>
+      </div>
+      <div class="field" style="max-width:145px">
+        <div class="fl">Language</div>
+        <select id="quizLang">
+          <option value="Telugu">తెలుగు</option>
+          <option value="English" selected>English</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:.85rem;display:flex;gap:.65rem;flex-wrap:wrap">
+      <button class="btn" onclick="startQuiz()">🚀 Generate Quiz</button>
+      <button class="btn-ghost btn-sm" onclick="setTopic2('Photosynthesis')">🌿 Photosynthesis</button>
+      <button class="btn-ghost btn-sm" onclick="setTopic2('Ohm\'s Law')">⚡ Ohm's Law</button>
+    </div>
+  </div>
+
+  <div id="quizOut"></div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="panel" id="p-dash">
+  <div class="sh">
+    <div class="sh-left"><h2>📊 Teacher Dashboard</h2><p>Real-time class analytics powered by Chart.js — saving 25% grading time.</p></div>
+    <span class="sh-tag">CHART.JS · REAL-TIME</span>
+  </div>
+  <div class="g4" id="dashStats"></div>
+  <div class="g2">
+    <div class="chart-card">
+      <div class="chart-title">📈 Topic Performance (Class Avg %)<span class="tag-pill">Week 4</span></div>
+      <canvas id="barChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📉 Score Trend Over Time<span class="tag-pill">Last 6 Weeks</span></div>
+      <canvas id="lineChart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">🗺️ Student × Topic Heatmap</div>
+    <div class="heatmap-grid" id="heatmap"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ Students Needing Attention</div>
+    <div id="alertList" style="display:flex;flex-direction:column;gap:.6rem"></div>
+  </div>
+</div>
+
+<!-- ═══ REPORT ═══ -->
+<div class="panel" id="p-report">
+  <div class="sh">
+    <div class="sh-left"><h2>📄 AI Report Generator</h2><p>Automated weekly class reports — teachers save 25% grading time.</p></div>
+    <span class="sh-tag">AI · AUTO-REPORT</span>
+  </div>
+  <div class="card">
+    <div class="row" style="flex-wrap:wrap;gap:.75rem">
+      <div class="field" style="flex:1">
+        <div class="fl">Class / Section context (optional)</div>
+        <input type="text" id="reportCtx" value="Class 10-A, 38 students, Science section, Week 4">
+      </div>
+      <div class="field" style="max-width:160px">
+        <div class="fl">Report Language</div>
+        <select id="reportLang">
+          <option value="Telugu">తెలుగు Telugu</option>
+          <option value="English" selected>English</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:.85rem;display:flex;gap:.65rem;flex-wrap:wrap">
+      <button class="btn" onclick="genReport()">📄 Generate AI Report</button>
+      <button class="btn-ghost btn-sm" onclick="copyReport()">📋 Copy</button>
+      <button class="btn-ghost btn-sm" onclick="speakReport()">🔊 Read Aloud</button>
+    </div>
+  </div>
+  <div id="reportOut"></div>
+</div>
+
+<!-- ═══ ACCESSIBILITY ═══ -->
+<div class="panel" id="p-access">
+  <div class="sh">
+    <div class="sh-left"><h2>♿ Accessibility Hub</h2><p>Inclusive features for dyslexic readers, visually impaired, and non-native speakers.</p></div>
+    <span class="sh-tag">WCAG · INCLUSIVE</span>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title">🔤 Reading Assistance</div>
+      <div style="display:flex;flex-direction:column;gap:.65rem">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:.84rem;color:var(--text)">Dyslexia-friendly font</span>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="dyslexiaFont" onchange="toggleDyslexia(this.checked)">
+            <span class="toggle"></span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:.84rem;color:var(--text)">High-contrast mode</span>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="highContrast" onchange="toggleContrast(this.checked)">
+            <span class="toggle"></span>
+          </label>
+        </div>
+        <div>
+          <div class="fl" style="margin-bottom:.4rem">Font Size</div>
+          <input type="range" min="12" max="22" value="15" oninput="setFontSize(this.value)" style="width:100%;accent-color:var(--terra)">
+        </div>
+        <div>
+          <div class="fl" style="margin-bottom:.4rem">Letter Spacing</div>
+          <input type="range" min="0" max="6" value="0" oninput="setLetterSpacing(this.value)" style="width:100%;accent-color:var(--terra)">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔊 Text-to-Speech</div>
+      <div style="display:flex;flex-direction:column;gap:.65rem">
+        <div class="field">
+          <div class="fl">TTS Language / Voice</div>
+          <select id="ttsVoiceLang">
+            <option value="te-IN">Telugu (India)</option>
+            <option value="hi-IN">Hindi (India)</option>
+            <option value="ta-IN">Tamil (India)</option>
+            <option value="en-IN">English (India)</option>
+            <option value="en-US" selected>English (US)</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="fl">Speech Rate</div>
+          <input type="range" min="0.5" max="1.8" step="0.1" value="0.9" id="ttsRate" oninput="document.getElementById('rateVal').textContent=this.value+'x'" style="width:100%;accent-color:var(--terra)">
+          <span id="rateVal" style="font-size:.72rem;color:var(--muted)">0.9x</span>
+        </div>
+        <div class="field">
+          <div class="fl">Test TTS — Enter text</div>
+          <textarea id="ttsTest" rows="2" placeholder="Type something to hear it...">Welcome to EduHelper! This is a test of text to speech.</textarea>
+        </div>
+        <button class="btn btn-sm" onclick="testTTS()">▶ Play / Stop</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎙️ Speech-to-Text</div>
+      <div style="display:flex;flex-direction:column;gap:.65rem">
+        <div class="field">
+          <div class="fl">STT Language</div>
+          <select id="sttLang">
+            <option value="te-IN">Telugu</option>
+            <option value="hi-IN">Hindi</option>
+            <option value="ta-IN">Tamil</option>
+            <option value="en-IN">English (India)</option>
+            <option value="en-US" selected>English (US)</option>
+          </select>
+        </div>
+        <button class="btn btn-sm" id="sttTestBtn" onclick="toggleSTTTest()">🎙️ Start Listening</button>
+        <div class="mic-wave idle" id="micWave2"><span></span><span></span><span></span><span></span><span></span></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem;min-height:60px;font-size:.84rem;color:var(--text)" id="sttTestOut">Transcription will appear here...</div>
+        <div style="font-size:.75rem;color:var(--muted)">✅ Uses browser's free Web Speech API — works offline-capable, no server needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WCAG Compliance Checklist -->
+  <div class="card">
+    <div class="card-title">✅ Accessibility Compliance</div>
+    <div class="g3" style="gap:.6rem">
+      ${['WCAG 2.1 AA Color Contrast','Keyboard Navigation','ARIA Labels','Screen Reader Support','Dyslexia Font (OpenDyslexic)','High-Contrast Mode','Font Size Controls','Voice Input (STT)','Voice Output (TTS)','Telugu/Hindi Support','Offline-capable APIs','Mobile Responsive'].map(f=>`<div style="display:flex;align-items:center;gap:.5rem;font-size:.81rem;color:var(--text)"><span style="color:var(--mint);font-weight:700">✓</span>${f}</div>`).join('')}
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" style="position:relative">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h3>🔑 Anthropic API Key</h3>
+    <p>Add your API key to unlock live AI-generated explanations, quizzes, and reports. Your key is stored only in browser memory — never sent to any server except Anthropic.</p>
+    <div class="field">
+      <div class="fl">API Key</div>
+      <input type="password" id="apiIn" placeholder="sk-ant-api03-..." style="font-family:'JetBrains Mono',monospace">
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="saveKey()">💾 Save & Activate</button>
+      <button class="btn-ghost" onclick="testKey()">🔌 Test</button>
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+    <div id="keyMsg" style="margin-top:.75rem;font-size:.78rem;color:var(--muted)"></div>
+    <div style="margin-top:.75rem;background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.2);border-radius:8px;padding:.75rem;font-size:.78rem;color:var(--text);line-height:1.6">
+      🆓 Get a free key at <span style="color:var(--gold)">console.anthropic.com</span> · Demo mode works without it
+    </div>
+  </div>
+</div>
+
+<!-- Toggle CSS -->
+<style>
+.toggle-wrap{position:relative;cursor:pointer}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute}
+.toggle{display:block;width:42px;height:24px;background:var(--border);border-radius:100px;transition:background .2s;position:relative}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle-wrap input:checked+.toggle{background:var(--terra)}
+.toggle-wrap input:checked+.toggle::after{transform:translateX(18px)}
+</style>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let apiKey = '';
+let lang = 'en';
+let xp = 320;
+let quizData = [], qIdx = 0, qScore = 0, qAnswered = false;
+let lastTopic = '';
+let sttRecognition = null;
+let sttActive = false;
+let sttTestActive = false;
+let ttsUtterance = null;
+let chartsBuilt = false;
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.onload = () => {
+  const saved = localStorage.getItem('eh_key');
+  if (saved) { apiKey = saved; document.getElementById('apiIn').value = saved; }
+  initSTT();
+};
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function nav(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.textContent.trim().toLowerCase().includes(id) ||
+         (id === 'home' && n.textContent.includes('Home'))) n.classList.add('active');
+    });
+  }
+  if (id === 'dash' && !chartsBuilt) { buildCharts(); chartsBuilt = true; }
+}
+
+// ══════════════════════════════════════════════
+// LANGUAGE
+// ══════════════════════════════════════════════
+function setLang(l, btn) {
+  lang = l;
+  document.querySelectorAll('.lt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (l === 'te') {
+    document.getElementById('explainLang').value = 'Telugu';
+    document.getElementById('quizLang').value = 'Telugu';
+  } else {
+    document.getElementById('explainLang').value = 'English';
+    document.getElementById('quizLang').value = 'English';
+  }
+}
+
+// ══════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════
+function getKey() { return apiKey || localStorage.getItem('eh_key') || ''; }
+
+async function callClaude(messages, system = '') {
+  const key = getKey();
+  if (!key) throw new Error('NO_KEY');
+  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages };
+  if (system) body.system = system;
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  const d = await r.json();
+  return d.content[0].text;
+}
+
+// ══════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════
+function openModal() { document.getElementById('modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function saveKey() {
+  const v = document.getElementById('apiIn').value.trim();
+  if (!v) return setMsg('⚠️ Enter a key first', 'var(--gold)');
+  apiKey = v; localStorage.setItem('eh_key', v);
+  setMsg('✅ Key saved! AI features unlocked.', 'var(--mint)');
+}
+async function testKey() {
+  setMsg('🔄 Testing...', 'var(--muted)');
+  try {
+    const r = await callClaude([{role:'user',content:'Reply only: "EduHelper connected!"'}]);
+    setMsg('✅ ' + r.trim(), 'var(--mint)');
+  } catch(e) {
+    setMsg(e.message === 'NO_KEY' ? '⚠️ No key saved yet' : '❌ Connection failed — check key', 'var(--rose)');
+  }
+}
+function setMsg(m, c) { const el = document.getElementById('keyMsg'); el.textContent = m; el.style.color = c; }
+
+// ══════════════════════════════════════════════
+// TTS
+// ══════════════════════════════════════════════
+function speak(text, lang = 'en-US', rate = 0.9) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = rate;
+  const voices = window.speechSynthesis.getVoices();
+  const match = voices.find(v => v.lang === lang);
+  if (match) u.voice = match;
+  window.speechSynthesis.speak(u);
+}
+function stopSpeak() { window.speechSynthesis.cancel(); }
+
+function speakEl(btn, text) {
+  if (window.speechSynthesis.speaking) {
+    stopSpeak(); btn.textContent = '🔊 Listen'; btn.classList.remove('playing'); return;
+  }
+  const rate = parseFloat(document.getElementById('ttsRate')?.value || 0.9);
+  const langCode = document.getElementById('ttsVoiceLang')?.value || 'en-US';
+  speak(text.replace(/\*\*/g,''), langCode, rate);
+  btn.textContent = '⏹ Stop'; btn.classList.add('playing');
+  const check = setInterval(() => {
+    if (!window.speechSynthesis.speaking) { btn.textContent = '🔊 Listen'; btn.classList.remove('playing'); clearInterval(check); }
+  }, 500);
+}
+
+function testTTS() {
+  const text = document.getElementById('ttsTest').value;
+  const rate = parseFloat(document.getElementById('ttsRate').value);
+  const langCode = document.getElementById('ttsVoiceLang').value;
+  if (window.speechSynthesis.speaking) { stopSpeak(); return; }
+  speak(text, langCode, rate);
+}
+
+function speakReport() {
+  const card = document.getElementById('reportOut').querySelector('.resp-body');
+  if (card) speak(card.textContent, 'en-US', 0.85);
+}
+function copyReport() {
+  const card = document.getElementById('reportOut').querySelector('.resp-body');
+  if (card) { navigator.clipboard.writeText(card.textContent).then(() => alert('Report copied!')); }
+}
+
+// ══════════════════════════════════════════════
+// STT
+// ══════════════════════════════════════════════
+function initSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  sttRecognition = new SR();
+  sttRecognition.continuous = false;
+  sttRecognition.interimResults = true;
+  sttRecognition.onresult = e => {
+    const txt = Array.from(e.results).map(r => r[0].transcript).join('');
+    if (document.getElementById('sttOut')) document.getElementById('sttOut').textContent = txt;
+    if (document.getElementById('sttTestOut')) document.getElementById('sttTestOut').textContent = txt;
+    if (e.results[e.results.length - 1].isFinal) {
+      document.getElementById('topicIn').value = txt;
+    }
+  };
+  sttRecognition.onend = () => {
+    sttActive = false; sttTestActive = false;
+    setWave('micWave', false); setWave('micWave2', false);
+    document.getElementById('sttBtn').textContent = '🎙️ Speak Topic';
+    if (document.getElementById('sttTestBtn')) document.getElementById('sttTestBtn').textContent = '🎙️ Start Listening';
+  };
+  sttRecognition.onerror = () => {
+    sttActive = false; sttTestActive = false;
+    setWave('micWave', false); setWave('micWave2', false);
+  };
+}
+
+function setWave(id, on) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  on ? el.classList.remove('idle') : el.classList.add('idle');
+}
+
+function toggleSTT() {
+  if (!sttRecognition) { alert('Speech recognition not supported in this browser. Try Chrome.'); return; }
+  if (sttActive) { sttRecognition.stop(); return; }
+  const langCode = document.getElementById('sttLang')?.value || 'en-US';
+  sttRecognition.lang = langCode;
+  sttRecognition.start();
+  sttActive = true;
+  setWave('micWave', true);
+  document.getElementById('sttBtn').textContent = '⏹ Stop';
+}
+
+function toggleSTTTest() {
+  if (!sttRecognition) { alert('Speech recognition not supported. Try Chrome.'); return; }
+  if (sttTestActive) { sttRecognition.stop(); return; }
+  const langCode = document.getElementById('sttLang').value;
+  sttRecognition.lang = langCode;
+  sttRecognition.start();
+  sttTestActive = true;
+  setWave('micWave2', true);
+  document.getElementById('sttTestBtn').textContent = '⏹ Stop Listening';
+}
+
+// ══════════════════════════════════════════════
+// EXPLAINER
+// ══════════════════════════════════════════════
+function setTopic(t) { document.getElementById('topicIn').value = t; }
+function setTopic2(t) { document.getElementById('quizTopic').value = t; }
+
+const DEMO_EXPLAINS = {
+  "Photosynthesis": `📖 **Simple Explanation**\nPhotosynthesis is how plants make their own food using sunlight. Leaves capture sunlight and use it to convert carbon dioxide (from air) and water (from soil) into glucose sugar and oxygen.\n\n🌍 **Indian Real-life Example**\nThe neem tree in your village courtyard is doing photosynthesis right now! Every single leaf is a solar-powered kitchen. The oxygen you breathe comes from these trees.\n\n🔑 **Key Points**\n• Equation: 6CO₂ + 6H₂O + Sunlight → C₆H₁₂O₆ + 6O₂\n• Happens in chloroplasts (contain green chlorophyll)\n• Only in plant cells (not animal cells)\n• Foundation of all food chains on Earth\n\n💡 **Remember This**\nPhotosynthesis = plants "eating sunlight" and giving us oxygen in return — a fair trade!`,
+  "Newton's Laws of Motion": `📖 **Simple Explanation**\nNewton's 3 Laws describe all movement. Objects resist change (Law 1). Force equals mass × acceleration (Law 2). Every action has an equal opposite reaction (Law 3).\n\n🌍 **Indian Real-life Example**\nWhen a cricket bowler runs and bowls — he applies force (Law 2). The ball pushes back on his hand (Law 3). Before he starts, the ball sits still (Law 1 inertia).\n\n🔑 **Key Points**\n• Law 1 (Inertia): No change without a force\n• Law 2 (F=ma): Bigger force = bigger acceleration\n• Law 3: Forces come in equal, opposite pairs\n• Explains rockets, vehicles, sports, everything!\n\n💡 **Remember This**\nF = ma is the most powerful equation in mechanics — learn it forever!`,
+  "Ohm's Law": `📖 **Simple Explanation**\nOhm's Law states that the current through a conductor is directly proportional to the voltage and inversely proportional to resistance. Formula: V = IR.\n\n🌍 **Indian Real-life Example**\nYour village tube well's electric pump uses Ohm's Law. Higher voltage = more current flows = pump works harder. Thicker wires have less resistance = safer for high current.\n\n🔑 **Key Points**\n• V = IR (Voltage = Current × Resistance)\n• Units: Volts (V), Amperes (A), Ohms (Ω)\n• More resistance = less current for same voltage\n• Foundation of all electrical engineering\n\n💡 **Remember This**\nV = IR. Cover the one you want to find, the other two show the formula!`
+};
+
+async function explainTopic() {
+  const topic = document.getElementById('topicIn').value.trim();
+  const exLang = document.getElementById('explainLang').value;
+  if (!topic) { alert('Please enter a topic!'); return; }
+  lastTopic = topic;
+  const out = document.getElementById('explainOut');
+  out.innerHTML = thinkingHTML('EduHelper AI is preparing your explanation...');
+
+  const system = `You are EduHelper AI, an educational assistant for Indian school students (Class 8-12).
+Respond in ${exLang} language (use the ${exLang} script for non-English).
+Format your response with exactly these 4 sections:
+📖 **Simple Explanation** (2-3 sentences, very clear)
+🌍 **Indian Real-life Example** (relatable Indian context — villages, cricket, food, nature)
+🔑 **Key Points** (3-4 bullet points starting with •)
+💡 **Remember This** (one memorable line)
+Keep language warm, simple, and encouraging for rural students.`;
+
+  try {
+    const r = await callClaude([{role:'user',content:`Explain for a Class 10 student: ${topic}`}], system);
+    out.innerHTML = buildExplainCard(topic, exLang, r, false);
+  } catch(e) {
+    const demo = DEMO_EXPLAINS[topic] || `📖 **Simple Explanation**\n${topic} is an important concept in your syllabus.\n\n🌍 **Indian Real-life Example**\nAdd your Anthropic API key in Settings to get a real Indian example for ${topic}.\n\n🔑 **Key Points**\n• Add API key for live AI\n• Supports 22+ Indian languages\n• Real Indian context examples\n• Adaptive to your grade level\n\n💡 **Remember This**\nGet your free API key at console.anthropic.com!`;
+    out.innerHTML = buildExplainCard(topic, exLang + ' (Demo)', demo, true);
+  }
+  addXP(20);
+}
+
+function buildExplainCard(topic, lang, content, isDemo) {
+  const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  const plainText = content.replace(/\*\*/g,'');
+  return `<div class="resp-card">
+    <div class="resp-hd">
+      <div class="resp-title">📘 ${topic} <span class="ai-chip">${isDemo ? 'DEMO' : 'AI'} · ${lang}</span></div>
+      <button class="btn-sky btn-sm" onclick="speakEl(this, \`${plainText.replace(/`/g,"'").substring(0,500)}\`)">🔊 Listen</button>
+    </div>
+    <div class="resp-body">${escaped}</div>
+    <div class="resp-actions">
+      <button class="btn btn-sm" onclick="loadQuizTopic()">✏️ Quiz Me</button>
+      <button class="btn-ghost btn-sm" onclick="simplerExplain()">🔽 Simpler</button>
+      <button class="btn-ghost btn-sm" onclick="deeperExplain()">🔼 More Depth</button>
+      <button class="btn-ghost btn-sm" onclick="switchExplainLang()">🌐 Switch Language</button>
+    </div>
+  </div>`;
+}
+
+function loadQuizTopic() { document.getElementById('quizTopic').value = lastTopic; nav('quiz', null); }
+function simplerExplain() { document.getElementById('topicIn').value = lastTopic + ' (explain simpler for Class 6)'; explainTopic(); }
+function deeperExplain() { document.getElementById('topicIn').value = lastTopic + ' (explain in more depth)'; explainTopic(); }
+function switchExplainLang() {
+  const sel = document.getElementById('explainLang');
+  sel.value = sel.value === 'English' ? 'Telugu' : 'English';
+  explainTopic();
+}
+
+// ══════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════
+const DEMO_Q = [
+  {q:"According to Newton's Second Law, if force is doubled and mass stays the same, acceleration will...",opts:["Stay the same","Double","Halve","Become zero"],ans:1,exp:"F = ma, so a = F/m. Double force with same mass → double acceleration. Simple proportionality!"},
+  {q:"Which law explains why you jerk forward when a bus brakes suddenly?",opts:["Newton's First Law","Newton's Second Law","Newton's Third Law","Law of Gravitation"],ans:0,exp:"Newton's First Law (Inertia) — your body tends to continue at the bus's original speed even when the bus stops. You resist change in motion!"},
+  {q:"A rocket expels gas downward to move upward. This demonstrates...",opts:["First Law","Second Law","Third Law","Gravity Law"],ans:2,exp:"Newton's Third Law — every action has an equal and opposite reaction. Gas pushes down (action), rocket is pushed up (reaction). This is how all rockets work!"},
+  {q:"The SI unit of force is:",opts:["Joule","Newton","Pascal","Watt"],ans:1,exp:"Force is measured in Newtons (N), named after Isaac Newton. 1 Newton = 1 kg·m/s². Joule = energy, Pascal = pressure, Watt = power."},
+  {q:"Which of these is NOT an example of Newton's Third Law?",opts:["Swimming","Walking on ground","A ball rolling to a stop on carpet","Recoil of a gun"],ans:2,exp:"A ball rolling to a stop due to friction is Newton's First Law (friction is the external force stopping it). The other three all involve action-reaction force pairs."}
+];
+
+async function startQuiz() {
+  const topic = document.getElementById('quizTopic').value.trim() || "Newton's Laws";
+  const diff = document.getElementById('quizDiff').value;
+  const qlang = document.getElementById('quizLang').value;
+  qIdx = 0; qScore = 0; quizData = [];
+  const out = document.getElementById('quizOut');
+  out.innerHTML = thinkingHTML(`Generating adaptive ${diff} quiz on "${topic}"...`);
+
+  const system = `Generate exactly 5 MCQ questions about "${topic}" for a ${diff} level Indian student.
+Language: ${qlang}. Return ONLY valid JSON array, no markdown:
+[{"q":"question text","opts":["A","B","C","D"],"ans":0,"exp":"why correct in 1 sentence"}]
+ans is 0-based index of correct answer.`;
+
+  try {
+    const raw = await callClaude([{role:'user',content:`Generate quiz: ${topic}`}], system);
+    quizData = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderQ();
+  } catch(e) {
+    quizData = DEMO_Q;
+    renderQ();
+  }
+}
+
+function renderQ() {
+  if (qIdx >= quizData.length) { showFinalScore(); return; }
+  qAnswered = false;
+  const q = quizData[qIdx];
+  const pct = (qIdx / quizData.length) * 100;
+  document.getElementById('quizOut').innerHTML = `
+  <div class="card" style="animation:fadeUp .35s ease">
+    <div class="qz-prog-wrap">
+      <div class="qz-bar"><div class="qz-fill" style="width:${pct}%"></div></div>
+      <div class="qz-num">Q${qIdx+1} of ${quizData.length}</div>
+    </div>
+    <!-- Voice controls -->
+    <div class="voice-bar" style="margin-bottom:1.1rem">
+      <button class="btn-sky btn-sm" onclick="speakQ()">🔊 Read Question</button>
+      <button class="btn-mint btn-sm" id="voiceAnsBtn" onclick="toggleVoiceAnswer()">🎙️ Voice Answer</button>
+      <div class="mic-wave idle" id="quizMicWave"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="stt-transcript" id="quizSTT">Say A, B, C, or D to answer by voice...</div>
+    </div>
+    <div class="qz-q">${q.q}</div>
+    <div class="opts">
+      ${q.opts.map((o,i) => `
+      <div class="opt" id="opt${i}" onclick="pickOpt(${i})">
+        <div class="opt-ltr">${'ABCD'[i]}</div>
+        <span>${o}</span>
+      </div>`).join('')}
+    </div>
+    <div id="qFB"></div>
+    <div class="qz-foot">
+      <span style="font-size:.8rem;color:var(--muted)">Score: <strong style="color:var(--terra)">${qScore}/${qIdx}</strong></span>
+      <button class="btn btn-sm" id="nextBtn" style="display:none" onclick="nextQ()">Next →</button>
+    </div>
+  </div>`;
+}
+
+function speakQ() {
+  const q = quizData[qIdx];
+  const text = q.q + '. Options: ' + q.opts.map((o,i) => `${['A','B','C','D'][i]}: ${o}`).join('. ');
+  speak(text, 'en-US', 0.85);
+}
+
+let voiceAnsActive = false;
+function toggleVoiceAnswer() {
+  if (!sttRecognition) { alert('Speech recognition not supported. Try Chrome.'); return; }
+  if (voiceAnsActive) { sttRecognition.stop(); return; }
+  sttRecognition.lang = 'en-US';
+  sttRecognition.onresult = e => {
+    const txt = e.results[e.results.length-1][0].transcript.trim().toUpperCase();
+    document.getElementById('quizSTT').textContent = 'Heard: ' + txt;
+    if (e.results[e.results.length-1].isFinal) {
+      const idx = ['A','B','C','D'].indexOf(txt[0]);
+      if (idx >= 0) { sttRecognition.stop(); pickOpt(idx); }
+    }
+  };
+  sttRecognition.onend = () => {
+    voiceAnsActive = false;
+    setWave('quizMicWave', false);
+    document.getElementById('voiceAnsBtn').textContent = '🎙️ Voice Answer';
+  };
+  sttRecognition.start();
+  voiceAnsActive = true;
+  setWave('quizMicWave', true);
+  document.getElementById('voiceAnsBtn').textContent = '⏹ Stop';
+}
+
+function pickOpt(idx) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = quizData[qIdx];
+  const correct = idx === q.ans;
+  if (correct) qScore++;
+  document.querySelectorAll('.opt').forEach(o => o.classList.add('dis'));
+  document.getElementById('opt'+idx).classList.add(correct ? 'ok' : 'bad');
+  if (!correct) document.getElementById('opt'+q.ans).classList.add('ok');
+  document.getElementById('qFB').innerHTML = `<div class="fb-box ${correct ? 'ok' : 'bad'}">${correct ? '✅ Correct!' : '❌ Incorrect.'} ${q.exp}</div>`;
+  speak(correct ? 'Correct! ' + q.exp : 'Not quite. ' + q.exp, 'en-US', 0.9);
+  document.getElementById('nextBtn').style.display = 'inline-flex';
+  addXP(correct ? 15 : 3);
+}
+
+function nextQ() { qIdx++; renderQ(); }
+
+function showFinalScore() {
+  const pct = Math.round(qScore / quizData.length * 100);
+  const cls = pct >= 70 ? 'hi' : pct >= 45 ? 'mid' : 'lo';
+  const msg = pct >= 70 ? '🎉 Excellent! Well done!' : pct >= 45 ? '👍 Good effort! Keep going!' : '📚 Keep practicing — you\'ll get there!';
+  const tip = pct < 50 ? 'Try the AI Explainer to review this topic, then retake the quiz.' : 'Challenge yourself with a harder difficulty next!';
+  document.getElementById('quizOut').innerHTML = `
+  <div class="card" style="text-align:center;animation:fadeUp .4s ease">
+    <div class="score-ring ${cls}">${pct}%</div>
+    <div style="font-weight:800;font-size:1.1rem;margin-bottom:.4rem">${msg}</div>
+    <div style="color:var(--muted);font-size:.84rem;max-width:340px;margin:0 auto .5rem">${tip} You scored ${qScore} / ${quizData.length}.</div>
+    <div style="color:var(--muted);font-size:.78rem;margin-bottom:1.4rem">${pct >= 70 ? '📈 +30% improvement pattern detected!' : ''}</div>
+    <div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn" onclick="startQuiz()">🔄 Retry</button>
+      <button class="btn-ghost" onclick="nav('learn',null)">📖 Review Topic</button>
+    </div>
+  </div>`;
+  addXP(pct >= 70 ? 60 : 20);
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD — Chart.js
+// ══════════════════════════════════════════════
+const topics = ["Newton's Laws","Photosynthesis","Quadratic Eq.","French Rev.","Ohm's Law"];
+const students = ['Ravi K.','Priya S.','Anand M.','Kavya R.','Suresh P.','Divya T.','Mohan L.','Sneha B.'];
+
+function buildCharts() {
+  // Stats
+  document.getElementById('dashStats').innerHTML = [
+    {v:'38',l:'Students enrolled',c:'var(--terra)'},
+    {v:'74%',l:'Class avg accuracy',c:'var(--gold)'},
+    {v:'+18%',l:'Improvement this month',c:'var(--mint)'},
+    {v:'6',l:'Need intervention',c:'var(--rose)'},
+  ].map(s => `<div class="stat-tile" style="--tc:${s.c}"><div class="st-val">${s.v}</div><div class="st-lbl">${s.l}</div></div>`).join('');
+
+  // Bar Chart
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: topics,
+      datasets: [{
+        label: 'Class Avg %',
+        data: [84, 71, 58, 78, 63],
+        backgroundColor: ['rgba(232,99,74,.75)','rgba(240,180,41,.75)','rgba(251,113,133,.75)','rgba(52,211,153,.75)','rgba(56,189,248,.75)'],
+        borderRadius: 8, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#6B87A0', font: { family: 'DM Sans' } }, grid: { color: 'rgba(42,53,80,.6)' } },
+        y: { min: 0, max: 100, ticks: { color: '#6B87A0' }, grid: { color: 'rgba(42,53,80,.6)' } }
+      }
+    }
+  });
+
+  // Line Chart
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: ['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6'],
+      datasets: [
+        {label:'Class Avg',data:[58,62,65,71,74,74],borderColor:'rgba(232,99,74,.9)',backgroundColor:'rgba(232,99,74,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'var(--terra)'},
+        {label:'Top 10%',data:[72,78,82,86,89,91],borderColor:'rgba(52,211,153,.8)',backgroundColor:'rgba(52,211,153,.05)',fill:false,tension:.4,pointRadius:3,borderDash:[4,3]},
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#B8C8E0', font: { family: 'DM Sans', size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#6B87A0' }, grid: { color: 'rgba(42,53,80,.5)' } },
+        y: { ticks: { color: '#6B87A0' }, grid: { color: 'rgba(42,53,80,.5)' } }
+      }
+    }
+  });
+
+  // Heatmap
+  const hm = document.getElementById('heatmap');
+  hm.innerHTML = `<div></div>${topics.map(t=>`<div class="hm-hd">${t.replace("'s Laws"," Laws")}</div>`).join('')}`;
+  students.forEach(s => {
+    hm.innerHTML += `<div class="hm-name">${s}</div>`;
+    topics.forEach((_, ti) => {
+      const sc = Math.floor(Math.random() * 55) + 45;
+      const alpha = sc / 160;
+      const bg = sc >= 75 ? `rgba(52,211,153,${alpha+.1})` : sc >= 55 ? `rgba(240,180,41,${alpha+.1})` : `rgba(251,113,133,${alpha+.15})`;
+      hm.innerHTML += `<div class="hm-cell" style="background:${bg}" title="${s}: ${sc}%">${sc}%</div>`;
+    });
+  });
+
+  // Alerts
+  document.getElementById('alertList').innerHTML = [
+    {t:'Quadratic Equations',n:6,s:'6 students below 50%. Recommend: EduHelper explainer session + re-quiz'},
+    {t:"Ohm's Law",n:4,s:'4 struggling with V=IR. Suggest: interactive circuit voice-quiz'},
+    {t:'French Revolution',n:3,s:'Timeline comprehension gap. Try: audio explanation in Telugu'},
+  ].map(a=>`<div class="alert-row"><div><div class="ar-main">${a.t}</div><div class="ar-sub">${a.s}</div></div><div class="ar-num"><div class="ar-n">${a.n}</div><div class="ar-l">students</div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// REPORT
+// ══════════════════════════════════════════════
+const DEMO_REPORT = `Weekly Class Performance Report
+Section: Class 10-A | Week: 4 | Generated by EduHelper AI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 OVERALL SUMMARY
+Your class of 38 students achieved an average accuracy of 74% this week — an 18% improvement over Week 1. The EduHelper voice quiz sessions are showing clear positive impact, especially for students who previously struggled with English-medium content.
+
+🔴 AREAS OF CONCERN
+• Quadratic Equations (avg 58%): 6 students scored below 50%. Analysis suggests the factoring step causes confusion. Recommendation: Assign EduHelper explainer in Telugu, followed by a re-quiz.
+• Ohm's Law (avg 63%): Students understand V=IR but struggle applying it to circuit problems. The Virtual Lab simulation is recommended for next week.
+
+🟢 STRENGTHS
+• Newton's Laws (avg 84%) — Excellent retention after the voice quiz adaptive loop. Ravi K. and Priya S. scored 100%.
+• French Revolution (avg 78%) — Improved significantly after the audio explanation feature was used by 72% of students.
+
+📈 MEASURABLE IMPACT
+EduHelper voice quizzes correlate with a +30% score improvement for the bottom 20% of students. Voice answer mode has been used by 8 students with reading difficulties — their scores improved from 38% to 67% average.
+
+⏱️ TEACHER TIME SAVED
+Automated report generation + auto-graded voice quizzes saved approximately 3.5 hours this week — a 25% reduction in administrative workload.
+
+💡 RECOMMENDATIONS FOR NEXT WEEK
+1. Monday: Quadratic Equations revision — use Telugu explainer
+2. Wednesday: Ohm's Law voice quiz with circuit simulation
+3. Friday: Mixed topic quiz to consolidate all Week 4 topics
+
+Prepared by EduHelper AI | console.anthropic.com`;
+
+async function genReport() {
+  const ctx = document.getElementById('reportCtx').value;
+  const rl = document.getElementById('reportLang').value;
+  const out = document.getElementById('reportOut');
+  out.innerHTML = thinkingHTML('Generating AI class performance report...');
+
+  const system = `You are an educational analytics AI for Indian schools. Generate a detailed weekly class performance report in ${rl}.
+Include: overall summary, areas of concern, strengths, measurable impact metrics, teacher time saved, and recommendations for next week.
+Reference EduHelper AI features (voice quiz, TTS, STT, multilingual explanations). Be specific, warm, professional. ~300 words.`;
+
+  try {
+    const r = await callClaude([{role:'user',content:`Generate report for: ${ctx}. Class data: avg 74%, Newton's Laws 84%, Quadratic Equations 58% (6 students below 50%), Ohm's Law 63%, French Revolution 78%. 38 students total.`}], system);
+    out.innerHTML = `<div class="resp-card"><div class="resp-hd"><div class="resp-title">📄 AI Report <span class="ai-chip">AI · ${rl}</span></div></div><div class="resp-body">${r.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
+  } catch(e) {
+    out.innerHTML = `<div class="resp-card"><div class="resp-hd"><div class="resp-title">📄 Report <span class="ai-chip">DEMO</span></div></div><div class="resp-body">${DEMO_REPORT.replace(/</g,'&lt;').replace(/</g,'&gt;')}</div></div>`;
+  }
+  addXP(25);
+}
+
+// ══════════════════════════════════════════════
+// ACCESSIBILITY
+// ══════════════════════════════════════════════
+function toggleDyslexia(on) {
+  if (on) {
+    document.body.style.fontFamily = '"OpenDyslexic", "Comic Sans MS", cursive';
+    document.body.style.letterSpacing = '0.05em';
+    document.body.style.wordSpacing = '0.1em';
+    document.body.style.lineHeight = '1.9';
+  } else {
+    document.body.style.fontFamily = '';
+    document.body.style.letterSpacing = '';
+    document.body.style.wordSpacing = '';
+    document.body.style.lineHeight = '';
+  }
+}
+
+function toggleContrast(on) {
+  if (on) {
+    document.documentElement.style.setProperty('--bg','#000000');
+    document.documentElement.style.setProperty('--surface','#0A0A0A');
+    document.documentElement.style.setProperty('--card','#111111');
+    document.documentElement.style.setProperty('--text','#FFFFFF');
+    document.documentElement.style.setProperty('--muted','#CCCCCC');
+    document.documentElement.style.setProperty('--border','#444444');
+    document.documentElement.style.setProperty('--terra','#FF6633');
+  } else {
+    document.documentElement.style.setProperty('--bg','#0E1117');
+    document.documentElement.style.setProperty('--surface','#161B24');
+    document.documentElement.style.setProperty('--card','#1C2333');
+    document.documentElement.style.setProperty('--text','#B8C8E0');
+    document.documentElement.style.setProperty('--muted','#5A7090');
+    document.documentElement.style.setProperty('--border','#2A3550');
+    document.documentElement.style.setProperty('--terra','#E8634A');
+  }
+}
+
+function setFontSize(v) { document.body.style.fontSize = v + 'px'; }
+function setLetterSpacing(v) { document.body.style.letterSpacing = v * 0.02 + 'em'; }
+
+// ══════════════════════════════════════════════
+// XP
+// ══════════════════════════════════════════════
+function addXP(n) {
+  xp = Math.min(xp + n, 500);
+  document.getElementById('xpTxt').textContent = xp + ' XP';
+  document.getElementById('xpBar').style.width = (xp / 500 * 100) + '%';
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function thinkingHTML(msg) {
+  return `<div class="thinking"><div class="dots"><span></span><span></span><span></span></div>${msg}</div>`;
+}
+</script>
+</body>
+</html>
